@@ -6,3 +6,4 @@
 1 million DonutSMP Money|0.4|0|Currency
 Skeleton Spawners|0.4|0|Spawners
 Netherite Kit|15|0|kits
+Elytra|60|0|items
