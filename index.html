@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drycrash - Shop</title>
+    <title>Drycrash - Advanced Addon</title>
     <meta property="og:title" content="Drycrash Shop" />
     <meta property="og:description" content="Best irl shop for DonutSMP" />
     <meta property="og:image" content="https://media.discordapp.net/attachments/1407490953400287393/1407857196003229706/logo1.png?ex=68a7a0b0&is=68a64f30&hm=b5e00ff07052b718de2cb8af9d5be6716dcc0daf497271b706cc623377b2ae80&=&format=webp&quality=lossless&width=1322&height=881" />
@@ -233,35 +233,16 @@
             text-align: center;
         }
 
-        .screenshot {
+        .category-header {
+            grid-column: 1 / -1;
             text-align: center;
-            margin: 60px 0;
+            margin: 20px 0 10px 0;
         }
 
-        .screenshot img {
-            max-width: 80%;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-        }
-
-        .mockup-container {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 204, 112, 0.05));
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 12px;
-            padding: 40px;
-            margin: 40px auto;
-            max-width: 800px;
-            text-align: center;
-        }
-
-        .mockup-placeholder {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(0, 255, 136, 0.3);
-            border-radius: 8px;
-            padding: 60px;
-            color: #666;
-            font-size: 1.1rem;
+        .category-header h4 {
+            color: #FFB8F0;
+            font-size: 1.3rem;
+            margin: 0;
         }
 
         @media (max-width: 768px) {
@@ -355,7 +336,50 @@
                     let stock = parseInt(parts[2].trim());
 
                     // Handle optional currency symbols
-                    if (isNaN(price) && parts[1].includes('
+                    if (isNaN(price) && parts[1].includes('$')) {
+                        price = parseFloat(parts[1].replace('$', '').trim());
+                    }
+
+                    // Handle "unlimited" or "infinite" stock
+                    if (isNaN(stock)) {
+                        const stockText = parts[2].trim().toLowerCase();
+                        if (stockText.includes('unlimited') || stockText.includes('infinite') || stockText === '∞') {
+                            stock = 9999;
+                        }
+                    }
+
+                    // Add optional description/category (4th column)
+                    let category = '';
+                    if (parts.length >= 4) {
+                        category = parts[3].trim();
+                    }
+
+                    if (name && !isNaN(price) && !isNaN(stock)) {
+                        products.push({ name, price, stock, category });
+                    }
+                }
+            }
+
+            return products;
+        }
+
+        // Function to create individual product card
+        function createProductCard(product) {
+            const stockStatus = getStockStatus(product.stock);
+            const specialStock = product.stock >= 9999 ? 'Unlimited' : stockStatus.text;
+            
+            return `
+                <div class="feature-card">
+                    <h4 class="feature-title">${product.name}</h4>
+                    <p class="feature-description">
+                        $${product.price.toFixed(2)} USD each<br>
+                        <span class="stock-status ${stockStatus.class}">
+                            ${specialStock}
+                        </span>
+                    </p>
+                </div>
+            `;
+        }
 
         // Function to render products - Enhanced with categories and auto-refresh
         function renderProducts(products) {
@@ -392,8 +416,8 @@
                 Object.keys(categorized).forEach(category => {
                     if (category !== 'General') {
                         html += `
-                            <div class="category-header" style="grid-column: 1 / -1; text-align: center; margin: 20px 0 10px 0;">
-                                <h4 style="color: #FFB8F0; font-size: 1.3rem; margin: 0;">${category}</h4>
+                            <div class="category-header">
+                                <h4>${category}</h4>
                             </div>
                         `;
                     }
@@ -410,24 +434,6 @@
             }
 
             grid.innerHTML = html;
-        }
-
-        // Function to create individual product card
-        function createProductCard(product) {
-            const stockStatus = getStockStatus(product.stock);
-            const specialStock = product.stock >= 9999 ? 'Unlimited' : stockStatus.text;
-            
-            return `
-                <div class="feature-card">
-                    <h4 class="feature-title">${product.name}</h4>
-                    <p class="feature-description">
-                        ${product.price.toFixed(2)} USD each<br>
-                        <span class="stock-status ${stockStatus.class}">
-                            ${specialStock}
-                        </span>
-                    </p>
-                </div>
-            `;
         }
 
         // Function to load stock data
@@ -505,273 +511,6 @@
                     loadStockData();
                 }
             });
-            
-            // Create particles periodically
-            setInterval(createParticle, 1000);
-            
-            // Create initial particles
-            for (let i = 0; i < 15; i++) {
-                setTimeout(createParticle, i * 200);
-            }
-
-            // Add hover effects to feature cards (will work after products load)
-            document.addEventListener('mouseenter', function(e) {
-                if (e.target.classList.contains('feature-card')) {
-                    e.target.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
-                }
-            }, true);
-            
-            document.addEventListener('mouseleave', function(e) {
-                if (e.target.classList.contains('feature-card')) {
-                    e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))';
-                }
-            }, true);
-        });
-    </script>
-</body>
-</html>)) {
-                        price = parseFloat(parts[1].replace('
-
-        // Function to render products
-        function renderProducts(products) {
-            const grid = document.getElementById('featuresGrid');
-            
-            if (products.length === 0) {
-                grid.innerHTML = `
-                    <div class="feature-card" style="grid-column: 1 / -1; text-align: center;">
-                        <h4 class="feature-title">No products available</h4>
-                        <p class="feature-description">Check back later for new items!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = products.map(product => {
-                const stockStatus = getStockStatus(product.stock);
-                return `
-                    <div class="feature-card">
-                        <h4 class="feature-title">${product.name}</h4>
-                        <p class="feature-description">
-                            $${product.price.toFixed(2)} USD each<br>
-                            <span class="stock-status ${stockStatus.class}">
-                                ${stockStatus.text}
-                            </span>
-                        </p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Function to load stock data
-        async function loadStockData() {
-            const loadingMessage = document.getElementById('loadingMessage');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Show loading state
-            loadingMessage.style.display = 'block';
-            errorMessage.style.display = 'none';
-
-            try {
-                const response = await fetch(STOCK_DATA_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const text = await response.text();
-                const products = parseStockData(text);
-                
-                stockData = products;
-                renderProducts(products);
-
-            } catch (error) {
-                console.error('Error loading stock data:', error);
-                errorMessage.textContent = `Failed to load stock data: ${error.message}`;
-                errorMessage.style.display = 'block';
-                
-                // Show fallback data
-                const fallbackProducts = [
-                    { name: '1 million DonutSMP Money', price: 0.4, stock: 100 },
-                    { name: 'Skeleton Spawners', price: 0.4, stock: 0 }
-                ];
-                renderProducts(fallbackProducts);
-            } finally {
-                // Hide loading state
-                loadingMessage.style.display = 'none';
-            }
-        }
-
-        // Create floating particles
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            const size = Math.random() * 4 + 2;
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            
-            particle.style.left = Math.random() * window.innerWidth + 'px';
-            particle.style.top = Math.random() * window.innerHeight + 'px';
-            
-            particle.style.animationDelay = Math.random() * 8 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
-            
-            document.getElementById('background').appendChild(particle);
-            
-            setTimeout(() => {
-                particle.remove();
-            }, 20000);
-        }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load stock data on page load
-            loadStockData();
-            
-            // Create particles periodically
-            setInterval(createParticle, 1000);
-            
-            // Create initial particles
-            for (let i = 0; i < 15; i++) {
-                setTimeout(createParticle, i * 200);
-            }
-
-            // Add hover effects to feature cards (will work after products load)
-            document.addEventListener('mouseenter', function(e) {
-                if (e.target.classList.contains('feature-card')) {
-                    e.target.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
-                }
-            }, true);
-            
-            document.addEventListener('mouseleave', function(e) {
-                if (e.target.classList.contains('feature-card')) {
-                    e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))';
-                }
-            }, true);
-        });
-    </script>
-</body>
-</html>, '').trim());
-                    }
-
-                    // Handle "unlimited" or "infinite" stock
-                    if (isNaN(stock)) {
-                        const stockText = parts[2].trim().toLowerCase();
-                        if (stockText.includes('unlimited') || stockText.includes('infinite') || stockText === '∞') {
-                            stock = 9999;
-                        }
-                    }
-
-                    // Add optional description/category (4th column)
-                    let category = '';
-                    if (parts.length >= 4) {
-                        category = parts[3].trim();
-                    }
-
-                    if (name && !isNaN(price) && !isNaN(stock)) {
-                        products.push({ name, price, stock, category });
-                    }
-                }
-            }
-
-            return products;
-        }
-
-        // Function to render products
-        function renderProducts(products) {
-            const grid = document.getElementById('featuresGrid');
-            
-            if (products.length === 0) {
-                grid.innerHTML = `
-                    <div class="feature-card" style="grid-column: 1 / -1; text-align: center;">
-                        <h4 class="feature-title">No products available</h4>
-                        <p class="feature-description">Check back later for new items!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = products.map(product => {
-                const stockStatus = getStockStatus(product.stock);
-                return `
-                    <div class="feature-card">
-                        <h4 class="feature-title">${product.name}</h4>
-                        <p class="feature-description">
-                            $${product.price.toFixed(2)} USD each<br>
-                            <span class="stock-status ${stockStatus.class}">
-                                ${stockStatus.text}
-                            </span>
-                        </p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Function to load stock data
-        async function loadStockData() {
-            const loadingMessage = document.getElementById('loadingMessage');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Show loading state
-            loadingMessage.style.display = 'block';
-            errorMessage.style.display = 'none';
-
-            try {
-                const response = await fetch(STOCK_DATA_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const text = await response.text();
-                const products = parseStockData(text);
-                
-                stockData = products;
-                renderProducts(products);
-
-            } catch (error) {
-                console.error('Error loading stock data:', error);
-                errorMessage.textContent = `Failed to load stock data: ${error.message}`;
-                errorMessage.style.display = 'block';
-                
-                // Show fallback data
-                const fallbackProducts = [
-                    { name: '1 million DonutSMP Money', price: 0.4, stock: 100 },
-                    { name: 'Skeleton Spawners', price: 0.4, stock: 0 }
-                ];
-                renderProducts(fallbackProducts);
-            } finally {
-                // Hide loading state
-                loadingMessage.style.display = 'none';
-            }
-        }
-
-        // Create floating particles
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            const size = Math.random() * 4 + 2;
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            
-            particle.style.left = Math.random() * window.innerWidth + 'px';
-            particle.style.top = Math.random() * window.innerHeight + 'px';
-            
-            particle.style.animationDelay = Math.random() * 8 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
-            
-            document.getElementById('background').appendChild(particle);
-            
-            setTimeout(() => {
-                particle.remove();
-            }, 20000);
-        }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load stock data on page load
-            loadStockData();
             
             // Create particles periodically
             setInterval(createParticle, 1000);
