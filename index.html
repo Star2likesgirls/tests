@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drycrash - Advanced Addon</title>
+    <title>Dryshop</title>
     <meta property="og:title" content="Drycrash Shop" />
     <meta property="og:description" content="Best irl shop for DonutSMP" />
     <meta property="og:image" content="https://media.discordapp.net/attachments/1407490953400287393/1407857196003229706/logo1.png?ex=68a7a0b0&is=68a64f30&hm=b5e00ff07052b718de2cb8af9d5be6716dcc0daf497271b706cc623377b2ae80&=&format=webp&quality=lossless&width=1322&height=881" />
@@ -35,7 +35,7 @@
 
         .particle {
             position: absolute;
-            background: #00ff88;
+            background: #FFB8F0;
             border-radius: 50%;
             opacity: 0.3;
             animation: float 8s infinite ease-in-out;
@@ -64,7 +64,7 @@
         .logo {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #00ff88, #00cc70);
+            background: linear-gradient(135deg, #FFB8F0, #E89EDB);
             margin: 0 auto 30px auto;
             border-radius: 12px;
             display: flex;
@@ -73,13 +73,13 @@
             font-size: 36px;
             font-weight: bold;
             color: #000;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 30px rgba(255, 184, 240, 0.3);
         }
 
         .title {
             font-size: 4rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #00ff88, #ffffff);
+            background: linear-gradient(135deg, #FFB8F0, #ffffff);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -93,7 +93,7 @@
         }
 
         .tagline {
-            color: #00ff88;
+            color: #FFB8F0;
             font-size: 1rem;
             margin-bottom: 40px;
         }
@@ -110,7 +110,7 @@
         }
 
         .hero-title .highlight {
-            color: #00ff88;
+            color: #FFB8F0;
         }
 
         .hero-description {
@@ -123,7 +123,7 @@
 
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #00ff88, #00cc70);
+            background: linear-gradient(135deg, #FFB8F0, #E89EDB);
             color: #000000;
             padding: 16px 40px;
             border-radius: 8px;
@@ -131,12 +131,12 @@
             font-weight: 600;
             font-size: 1.1rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 184, 240, 0.3);
         }
 
         .cta-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+            box-shadow: 0 8px 25px rgba(255, 184, 240, 0.4);
         }
 
         .features-section {
@@ -148,7 +148,7 @@
             font-size: 2.5rem;
             font-weight: 600;
             margin-bottom: 60px;
-            color: #00ff88;
+            color: #FFB8F0;
         }
 
         .features-grid {
@@ -160,7 +160,7 @@
 
         .feature-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-            border: 1px solid rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(255, 184, 240, 0.2);
             border-radius: 12px;
             padding: 30px;
             transition: all 0.3s ease;
@@ -169,8 +169,8 @@
 
         .feature-card:hover {
             transform: translateY(-5px);
-            border-color: rgba(0, 255, 136, 0.5);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.15);
+            border-color: rgba(255, 184, 240, 0.5);
+            box-shadow: 0 10px 30px rgba(255, 184, 240, 0.15);
         }
 
         .feature-title {
@@ -198,9 +198,9 @@
         }
 
         .stock-available {
-            background: rgba(255, 184, 240, 0.2);
-            color: #FFB8F0;
-            border: 1px solid rgba(255, 184, 240, 0.3);
+            background: rgba(255, 184, 240, 0.3);
+            color: #FFB8F0 !important;
+            border: 1px solid rgba(255, 184, 240, 0.5);
         }
 
         .stock-low {
@@ -217,7 +217,7 @@
 
         .loading-message {
             text-align: center;
-            color: #00ff88;
+            color: #FFB8F0;
             font-size: 1.1rem;
             margin: 40px 0;
             opacity: 0.8;
@@ -523,7 +523,7 @@
             // Add hover effects to feature cards (will work after products load)
             document.addEventListener('mouseenter', function(e) {
                 if (e.target.classList.contains('feature-card')) {
-                    e.target.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
+                    e.target.style.background = 'linear-gradient(135deg, rgba(255,184,240,0.08), rgba(255,184,240,0.03))';
                 }
             }, true);
             
