@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drycrash - Advanced Addon</title>
+    <meta property="og:title" content="Drycrash Shop" />
+    <meta property="og:description" content="Best irl shop for DonutSMP" />
+    <meta property="og:image" content="https://media.discordapp.net/attachments/1407490953400287393/1407857196003229706/logo1.png?ex=68a7a0b0&is=68a64f30&hm=b5e00ff07052b718de2cb8af9d5be6716dcc0daf497271b706cc623377b2ae80&=&format=webp&quality=lossless&width=1322&height=881" />
+    <meta property="og:url" content="https://star2likesgirls.github.io/drycrashaddon/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Drycrash Addon" />
     <style>
         * {
             margin: 0;
@@ -180,6 +186,53 @@
             font-size: 0.95rem;
         }
 
+        .stock-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-available {
+            background: rgba(255, 184, 240, 0.2);
+            color: #FFB8F0;
+            border: 1px solid rgba(255, 184, 240, 0.3);
+        }
+
+        .stock-low {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .stock-out {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .loading-message {
+            text-align: center;
+            color: #00ff88;
+            font-size: 1.1rem;
+            margin: 40px 0;
+            opacity: 0.8;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
         .screenshot {
             text-align: center;
             margin: 60px 0;
@@ -236,12 +289,7 @@
             <p class="subtitle">The ultimate IRL shop for the donutsmp.</p>
             <p class="tagline">Low price with you in mind.</p>
         </div>
-        <meta property="og:title" content="Drycrash Shop" />
-        <meta property="og:description" content="Best irl shop for DonutSMP" />
-        <meta property="og:image" content="https://media.discordapp.net/attachments/1407490953400287393/1407857196003229706/logo1.png?ex=68a7a0b0&is=68a64f30&hm=b5e00ff07052b718de2cb8af9d5be6716dcc0daf497271b706cc623377b2ae80&=&format=webp&quality=lossless&width=1322&height=881" />
-        <meta property="og:url" content="https://star2likesgirls.github.io/drycrashaddon/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Drycrash Addon" />
+
         <div class="hero-section">
             <h2 class="hero-title">Best donutsmp <span class="highlight">IRL</span> shop!</h2>
             <p class="hero-description">
@@ -249,27 +297,178 @@
             </p>
             <a href="https://discord.gg/HapJq7HDhM" class="cta-button">Buy items</a>
         </div>
+
         <div class="features-section">
             <h3 class="section-title">Products</h3>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h4 class="feature-title">1 million DonutSMP Money,</h4>
-                    <p class="feature-description">
-                        0.4 USD x1 (stock: 100)
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <h4 class="feature-title">Skeleton Spawners</h4>
-                    <p class="feature-description">
-                        0.4 USD x1 (stock: 0)
-                    </p>
-                </div>
+            <div id="loadingMessage" class="loading-message" style="display: none;">
+                Loading products...
             </div>
-             </div>
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="featuresGrid" class="features-grid">
+                <!-- Products will be loaded here -->
+            </div>
         </div>
     </div>
 
     <script>
+        // Stock data URL
+        const STOCK_DATA_URL = 'https://raw.githubusercontent.com/Star2likesgirls/tests/refs/heads/main/stocks.txt';
+        
+        let stockData = [];
+
+        // Function to get stock status
+        function getStockStatus(stock) {
+            if (stock <= 0) {
+                return { class: 'stock-out', text: 'Out of Stock' };
+            } else if (stock < 10) {
+                return { class: 'stock-low', text: `Low Stock (${stock})` };
+            } else {
+                return { class: 'stock-available', text: `In Stock (${stock})` };
+            }
+        }
+
+        // Function to parse stock data from text - Enhanced for flexibility
+        function parseStockData(text) {
+            const lines = text.trim().split('\n');
+            const products = [];
+
+            for (const line of lines) {
+                // Skip empty lines and comments
+                if (!line.trim() || line.startsWith('#')) continue;
+
+                // Try different separators: | (primary), ; (secondary), , (tertiary)
+                let parts;
+                if (line.includes('|')) {
+                    parts = line.split('|');
+                } else if (line.includes(';')) {
+                    parts = line.split(';');
+                } else if (line.includes(',')) {
+                    parts = line.split(',');
+                } else {
+                    // Skip lines that don't have proper separators
+                    continue;
+                }
+
+                if (parts.length >= 3) {
+                    const name = parts[0].trim();
+                    let price = parseFloat(parts[1].trim());
+                    let stock = parseInt(parts[2].trim());
+
+                    // Handle optional currency symbols
+                    if (isNaN(price) && parts[1].includes('
+
+        // Function to render products - Enhanced with categories and auto-refresh
+        function renderProducts(products) {
+            const grid = document.getElementById('featuresGrid');
+            
+            if (products.length === 0) {
+                grid.innerHTML = `
+                    <div class="feature-card" style="grid-column: 1 / -1; text-align: center;">
+                        <h4 class="feature-title">No products available</h4>
+                        <p class="feature-description">Check back later for new items!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group products by category if categories exist
+            const categorized = {};
+            let hasCategories = false;
+            
+            products.forEach(product => {
+                const category = product.category || 'General';
+                if (product.category) hasCategories = true;
+                
+                if (!categorized[category]) {
+                    categorized[category] = [];
+                }
+                categorized[category].push(product);
+            });
+
+            let html = '';
+            
+            // If we have categories, group them
+            if (hasCategories) {
+                Object.keys(categorized).forEach(category => {
+                    if (category !== 'General') {
+                        html += `
+                            <div class="category-header" style="grid-column: 1 / -1; text-align: center; margin: 20px 0 10px 0;">
+                                <h4 style="color: #FFB8F0; font-size: 1.3rem; margin: 0;">${category}</h4>
+                            </div>
+                        `;
+                    }
+                    
+                    categorized[category].forEach(product => {
+                        html += createProductCard(product);
+                    });
+                });
+            } else {
+                // No categories, just render all products
+                products.forEach(product => {
+                    html += createProductCard(product);
+                });
+            }
+
+            grid.innerHTML = html;
+        }
+
+        // Function to create individual product card
+        function createProductCard(product) {
+            const stockStatus = getStockStatus(product.stock);
+            const specialStock = product.stock >= 9999 ? 'Unlimited' : stockStatus.text;
+            
+            return `
+                <div class="feature-card">
+                    <h4 class="feature-title">${product.name}</h4>
+                    <p class="feature-description">
+                        ${product.price.toFixed(2)} USD each<br>
+                        <span class="stock-status ${stockStatus.class}">
+                            ${specialStock}
+                        </span>
+                    </p>
+                </div>
+            `;
+        }
+
+        // Function to load stock data
+        async function loadStockData() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Show loading state
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            try {
+                const response = await fetch(STOCK_DATA_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                const products = parseStockData(text);
+                
+                stockData = products;
+                renderProducts(products);
+
+            } catch (error) {
+                console.error('Error loading stock data:', error);
+                errorMessage.textContent = `Failed to load stock data: ${error.message}`;
+                errorMessage.style.display = 'block';
+                
+                // Show fallback data
+                const fallbackProducts = [
+                    { name: '1 million DonutSMP Money', price: 0.4, stock: 100 },
+                    { name: 'Skeleton Spawners', price: 0.4, stock: 0 }
+                ];
+                renderProducts(fallbackProducts);
+            } finally {
+                // Hide loading state
+                loadingMessage.style.display = 'none';
+            }
+        }
+
         // Create floating particles
         function createParticle() {
             const particle = document.createElement('div');
@@ -290,25 +489,310 @@
             setTimeout(() => {
                 particle.remove();
             }, 20000);
-        }jans
-
-        // Create particles periodically
-        setInterval(createParticle, 1000);
-        
-        // Create initial particles
-        for (let i = 0; i < 15; i++) {
-            setTimeout(createParticle, i * 200);
         }
 
-        // Add hover effects
-        document.querySelectorAll('.feature-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load stock data on page load
+            loadStockData();
+            
+            // Auto-refresh stock data every 5 minutes (300000ms)
+            setInterval(loadStockData, 300000);
+            
+            // Check for updates when page becomes visible again
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    loadStockData();
+                }
             });
             
-            card.addEventListener('mouseleave', function() {
-                this.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))';
-            });
+            // Create particles periodically
+            setInterval(createParticle, 1000);
+            
+            // Create initial particles
+            for (let i = 0; i < 15; i++) {
+                setTimeout(createParticle, i * 200);
+            }
+
+            // Add hover effects to feature cards (will work after products load)
+            document.addEventListener('mouseenter', function(e) {
+                if (e.target.classList.contains('feature-card')) {
+                    e.target.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
+                }
+            }, true);
+            
+            document.addEventListener('mouseleave', function(e) {
+                if (e.target.classList.contains('feature-card')) {
+                    e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))';
+                }
+            }, true);
+        });
+    </script>
+</body>
+</html>)) {
+                        price = parseFloat(parts[1].replace('
+
+        // Function to render products
+        function renderProducts(products) {
+            const grid = document.getElementById('featuresGrid');
+            
+            if (products.length === 0) {
+                grid.innerHTML = `
+                    <div class="feature-card" style="grid-column: 1 / -1; text-align: center;">
+                        <h4 class="feature-title">No products available</h4>
+                        <p class="feature-description">Check back later for new items!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const stockStatus = getStockStatus(product.stock);
+                return `
+                    <div class="feature-card">
+                        <h4 class="feature-title">${product.name}</h4>
+                        <p class="feature-description">
+                            $${product.price.toFixed(2)} USD each<br>
+                            <span class="stock-status ${stockStatus.class}">
+                                ${stockStatus.text}
+                            </span>
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Function to load stock data
+        async function loadStockData() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Show loading state
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            try {
+                const response = await fetch(STOCK_DATA_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                const products = parseStockData(text);
+                
+                stockData = products;
+                renderProducts(products);
+
+            } catch (error) {
+                console.error('Error loading stock data:', error);
+                errorMessage.textContent = `Failed to load stock data: ${error.message}`;
+                errorMessage.style.display = 'block';
+                
+                // Show fallback data
+                const fallbackProducts = [
+                    { name: '1 million DonutSMP Money', price: 0.4, stock: 100 },
+                    { name: 'Skeleton Spawners', price: 0.4, stock: 0 }
+                ];
+                renderProducts(fallbackProducts);
+            } finally {
+                // Hide loading state
+                loadingMessage.style.display = 'none';
+            }
+        }
+
+        // Create floating particles
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 4 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = Math.random() * window.innerHeight + 'px';
+            
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            
+            document.getElementById('background').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 20000);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load stock data on page load
+            loadStockData();
+            
+            // Create particles periodically
+            setInterval(createParticle, 1000);
+            
+            // Create initial particles
+            for (let i = 0; i < 15; i++) {
+                setTimeout(createParticle, i * 200);
+            }
+
+            // Add hover effects to feature cards (will work after products load)
+            document.addEventListener('mouseenter', function(e) {
+                if (e.target.classList.contains('feature-card')) {
+                    e.target.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
+                }
+            }, true);
+            
+            document.addEventListener('mouseleave', function(e) {
+                if (e.target.classList.contains('feature-card')) {
+                    e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))';
+                }
+            }, true);
+        });
+    </script>
+</body>
+</html>, '').trim());
+                    }
+
+                    // Handle "unlimited" or "infinite" stock
+                    if (isNaN(stock)) {
+                        const stockText = parts[2].trim().toLowerCase();
+                        if (stockText.includes('unlimited') || stockText.includes('infinite') || stockText === '∞') {
+                            stock = 9999;
+                        }
+                    }
+
+                    // Add optional description/category (4th column)
+                    let category = '';
+                    if (parts.length >= 4) {
+                        category = parts[3].trim();
+                    }
+
+                    if (name && !isNaN(price) && !isNaN(stock)) {
+                        products.push({ name, price, stock, category });
+                    }
+                }
+            }
+
+            return products;
+        }
+
+        // Function to render products
+        function renderProducts(products) {
+            const grid = document.getElementById('featuresGrid');
+            
+            if (products.length === 0) {
+                grid.innerHTML = `
+                    <div class="feature-card" style="grid-column: 1 / -1; text-align: center;">
+                        <h4 class="feature-title">No products available</h4>
+                        <p class="feature-description">Check back later for new items!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const stockStatus = getStockStatus(product.stock);
+                return `
+                    <div class="feature-card">
+                        <h4 class="feature-title">${product.name}</h4>
+                        <p class="feature-description">
+                            $${product.price.toFixed(2)} USD each<br>
+                            <span class="stock-status ${stockStatus.class}">
+                                ${stockStatus.text}
+                            </span>
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Function to load stock data
+        async function loadStockData() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Show loading state
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            try {
+                const response = await fetch(STOCK_DATA_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                const products = parseStockData(text);
+                
+                stockData = products;
+                renderProducts(products);
+
+            } catch (error) {
+                console.error('Error loading stock data:', error);
+                errorMessage.textContent = `Failed to load stock data: ${error.message}`;
+                errorMessage.style.display = 'block';
+                
+                // Show fallback data
+                const fallbackProducts = [
+                    { name: '1 million DonutSMP Money', price: 0.4, stock: 100 },
+                    { name: 'Skeleton Spawners', price: 0.4, stock: 0 }
+                ];
+                renderProducts(fallbackProducts);
+            } finally {
+                // Hide loading state
+                loadingMessage.style.display = 'none';
+            }
+        }
+
+        // Create floating particles
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 4 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = Math.random() * window.innerHeight + 'px';
+            
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            
+            document.getElementById('background').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 20000);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load stock data on page load
+            loadStockData();
+            
+            // Create particles periodically
+            setInterval(createParticle, 1000);
+            
+            // Create initial particles
+            for (let i = 0; i < 15; i++) {
+                setTimeout(createParticle, i * 200);
+            }
+
+            // Add hover effects to feature cards (will work after products load)
+            document.addEventListener('mouseenter', function(e) {
+                if (e.target.classList.contains('feature-card')) {
+                    e.target.style.background = 'linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,255,136,0.03))';
+                }
+            }, true);
+            
+            document.addEventListener('mouseleave', function(e) {
+                if (e.target.classList.contains('feature-card')) {
+                    e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))';
+                }
+            }, true);
         });
     </script>
 </body>
