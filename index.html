@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dryshop</title>
+    <title>Drycrash - Advanced Addon</title>
     <meta property="og:title" content="Drycrash Shop" />
     <meta property="og:description" content="Best irl shop for DonutSMP" />
     <meta property="og:image" content="https://media.discordapp.net/attachments/1407490953400287393/1407857196003229706/logo1.png?ex=68a7a0b0&is=68a64f30&hm=b5e00ff07052b718de2cb8af9d5be6716dcc0daf497271b706cc623377b2ae80&=&format=webp&quality=lossless&width=1322&height=881" />
@@ -446,14 +446,18 @@
             errorMessage.style.display = 'none';
 
             try {
-                const response = await fetch(STOCK_DATA_URL);
+                // Add cache-busting parameter
+                const cacheBuster = new Date().getTime();
+                const response = await fetch(`${STOCK_DATA_URL}?cb=${cacheBuster}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const text = await response.text();
+                console.log('Raw stock data:', text); // Debug log
                 const products = parseStockData(text);
+                console.log('Parsed products:', products); // Debug log
                 
                 stockData = products;
                 renderProducts(products);
