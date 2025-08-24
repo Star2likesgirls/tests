@@ -1,1 +1,7 @@
+# DryShop Products - Auto-Updated Stock System
+# Format: Product Name|Price|Stock|Category (category optional)
+# Last updated: Use GitHub to track changes automatically
 
+# Current Inventory
+1 million DonutSMP Money|0.4|0|Currency
+Skeleton Spawners|0.4|0|Spawners
