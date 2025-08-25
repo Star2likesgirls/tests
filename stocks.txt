@@ -4,7 +4,7 @@
 
 # Current Inventory
 1 million DonutSMP Money|0.15|10|Currency
-Skeleton Spawners|0.4|1|Spawners
+Skeleton Spawners|0.4|0|Spawners
 Netherite Kit|15|0|kits
 Basic diamond kit|0.01|0|kits
 Premium generator 1 month|10|9999|Account Generators
