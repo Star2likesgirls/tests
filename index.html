@@ -506,8 +506,8 @@
             // Load stock data on page load
             loadStockData();
             
-            // Auto-refresh stock data every 5 minutes (300000ms)
-            setInterval(loadStockData, 300000);
+            // Auto-refresh stock data every 1 minute (60000ms)
+            setInterval(loadStockData, 60000);
             
             // Check for updates when page becomes visible again
             document.addEventListener('visibilitychange', () => {
