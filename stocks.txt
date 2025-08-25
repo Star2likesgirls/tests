@@ -3,7 +3,7 @@
 # Last updated: Use GitHub to track changes automatically
 
 # Current Inventory
-1 million DonutSMP Money|0.4|0|Currency
+1 million DonutSMP Money|0.4|18|Currency
 Skeleton Spawners|0.4|1|Spawners
 Netherite Kit|15|0|kits
 Diamond kit|0.3|0|kits
