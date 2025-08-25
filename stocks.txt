@@ -6,4 +6,4 @@
 1 million DonutSMP Money|0.4|18|Currency
 Skeleton Spawners|0.4|1|Spawners
 Netherite Kit|15|0|kits
-Diamond kit|0.1|4|kits
+Diamond kit|0.05|4|kits
