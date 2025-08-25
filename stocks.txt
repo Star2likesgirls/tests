@@ -4,6 +4,6 @@
 
 # Current Inventory
 1 million DonutSMP Money|0.4|0|Currency
-Skeleton Spawners|0.4|0|Spawners
+Skeleton Spawners|0.4|1|Spawners
 Netherite Kit|15|0|kits
-Elytra|60|0|items
+Diamond kit|0.3|0|kits
