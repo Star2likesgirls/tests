@@ -3,8 +3,7 @@
 # Last updated: Use GitHub to track changes automatically
 
 # Current Inventory
-1 million DonutSMP Money|0.15|10|Currency
-Skeleton Spawners|0.15|0|Spawners
-Netherite Kit|15|0|kits
-Basic diamond kit|0.01|0|kits
-Premium generator 1 month|10|9999|Account Generators
+DonutSMP Money (Per Million)|0.07|300|Currency
+Skeleton Spawners (Skellys)|0.11|400|Spawners
+Elytra|21.50|1|Items
+
